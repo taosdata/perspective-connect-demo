@@ -7,6 +7,7 @@ Through TDengine's Python connector` Perspective can support TDengine data sourc
 
 <!-- omit in toc -->
 ## Table of Contents
+
 - [1. Introduction](#1-introduction)
 - [2. Prerequisites on Linux](#2-prerequisites-on-linux)
 - [3. Display Visualized Data](#3-display-visualized-data)

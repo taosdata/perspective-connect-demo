@@ -25,7 +25,7 @@ logger = logging.getLogger('main')
 # =============================================================================
 # TDengine connection parameters
 # =============================================================================
-TAOS_HOST = "192.168.1.95"                 # TDengine server host
+TAOS_HOST = "localhost"                 # TDengine server host
 TAOS_PORT = 6041                        # TDengine server port
 TAOS_USER = "root"                      # TDengine username
 TAOS_PASSWORD = "taosdata"              # TDengine password
