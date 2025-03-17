@@ -10,11 +10,11 @@ Through TDengine's Python connector` Perspective can support TDengine data sourc
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
-- [Start the perspective server and display visual data](#start-the-perspective-server-and-display-visual-data)
+- [Display Visualized Data](#display-visualized-data)
 - [Develop Perspective Server](#develop-perspective-server)
   - [Insert Data into TDengine](#insert-data-into-tdengine)
   - [Read TDengine Time-Series Data in Real-Time](#read-tdengine-time-series-data-in-real-time)
-  - [Embed \& Configure Perspective Viewer in HTML](#embed--configure-perspective-viewer-in-html)
+  - [Embed \& Configure Perspective Viewer](#embed--configure-perspective-viewer)
 
 
 ## Introduction
@@ -291,7 +291,7 @@ The `perspective_server.py` script starts a Perspective server that reads data f
           loop.start()
       ```
 
-### Embed & Configure Perspective Viewer in HTML
+### Embed & Configure Perspective Viewer
 
 The `prsp-viewer.html` file embeds a Perspective Table in an HTML page. It connects to the Perspective server via a WebSocket and displays the real-time data streamed from TDengine.
 
