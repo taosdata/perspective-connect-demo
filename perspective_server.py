@@ -39,7 +39,7 @@ TAOS_TABLENAME = "meters"        # TDengine table name
 # =============================================================================
 # Perspective server parameters
 # =============================================================================
-PERSPECTIVE_TABLE_NAME = "stock_values" # name of the Perspective table
+PERSPECTIVE_TABLE_NAME = "meters_values" # name of the Perspective table
 PERSPECTIVE_REFRESH_RATE = 250          # refresh rate in milliseconds
 
 

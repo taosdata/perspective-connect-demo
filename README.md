@@ -297,7 +297,7 @@ The `prsp-viewer.html` file embeds a Perspective Table in an HTML page. It conne
 
 1. **HTML Component:**
 
-   The HTML file includes the necessary Perspective libraries and sets up a `<perspective-viewer>` element within a container. This custom HTML component, written in WebAssembly, provides easily embeddable and highly interactive real-time data visualization on top of TDengine data. The viewer is configured to connect to the Perspective server via WebSocket and load the `stock_values` table, allowing for dynamic data visualization.
+   The HTML file includes the necessary Perspective libraries and sets up a `<perspective-viewer>` element within a container. This custom HTML component, written in WebAssembly, provides easily embeddable and highly interactive real-time data visualization on top of TDengine data. The viewer is configured to connect to the Perspective server via WebSocket and load the `meters_values` table, allowing for dynamic data visualization.
 
 2. **Styling:**
 
@@ -305,7 +305,7 @@ The `prsp-viewer.html` file embeds a Perspective Table in an HTML page. It conne
 
 3. **JavaScript Initialization:**
 
-   A script is included to load the Perspective viewer and connect it to the Perspective server via WebSocket. The viewer is bound to the `stock_values` table on the server, allowing real-time data updates to be displayed.
+   A script is included to load the Perspective viewer and connect it to the Perspective server via WebSocket. The viewer is bound to the `meters_values` table on the server, allowing real-time data updates to be displayed.
 
    ```html
    <script type="module">
@@ -313,7 +313,7 @@ The `prsp-viewer.html` file embeds a Perspective Table in an HTML page. It conne
    
        document.addEventListener("DOMContentLoaded", function() {
            async function load_viewer() {
-               const table_name = "stock_values";
+               const table_name = "meters_values";
                const viewer = document.getElementById("prsp-viewer");
                const websocket = await perspective.websocket("ws://localhost:8080/websocket");
                const server_table = await websocket.open_table(table_name);

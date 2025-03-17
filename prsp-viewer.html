@@ -62,7 +62,7 @@
             // 加载单个视图的异步函数
             async function load_viewer(viewerId, config) {
                 try {
-                    const table_name = "stock_values";
+                    const table_name = "meters_values";
                     const viewer = document.getElementById(viewerId);
                     // 连接到 WebSocket 服务器
                     const websocket = await perspective.websocket("ws://192.168.2.156:8085/websocket");
