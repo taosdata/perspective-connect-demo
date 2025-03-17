@@ -30,7 +30,7 @@ Perspective Server uses `TDengine Python Connector` to obtain real-time time-ser
 - Install python 3.10+ version, refer to [install python](https://docs.python.org/).
 - Run the 'install.sh' script to download and install the TDengine client library and related dependencies locally.
 
-## Start the perspective server and display visual data
+## Display Visualized Data
 
    1. **start the perspective service:**
 
@@ -50,7 +50,7 @@ Perspective Server uses `TDengine Python Connector` to obtain real-time time-ser
 
       Display effect
 
-      ![TDengine - Perspective Integration](imgs/prsp-tdengine_short.gif)
+      [![TDengine - Perspective Integration](imgs/prsp-tdengine_short.gif)](imgs/prsp-tdengine.gif)
 
 ## Develop Perspective Server
 
