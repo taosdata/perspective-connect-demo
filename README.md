@@ -6,7 +6,7 @@ Perspective is an open-source and powerful data visualization library that enabl
 Through TDengine's Python connector` Perspective can support TDengine data sources and provide real-time functions such as various data charts and analysis.
 
 <!-- omit in toc -->
-## Table of Contents- [1. Introduction](#1-introduction)
+## Table of Contents
 - [1. Introduction](#1-introduction)
 - [2. Prerequisites on Linux](#2-prerequisites-on-linux)
 - [3. Display Visualized Data](#3-display-visualized-data)
