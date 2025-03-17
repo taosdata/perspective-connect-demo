@@ -23,10 +23,6 @@ Perspective Server uses `TDengine Python Connector` to obtain real-time time-ser
 
 ![TDengine - Perspective Architecture](imgs/tdengine_prsp_architecture.jpg)
 
-Display effect
-
-![TDengine - Perspective Integration](imgs/prsp-tdengine_short.gif)
-
 ## Prerequisites
 
 - TDengine 3.3.5.8 and above version is installed and running normally (both Enterprise and Community versions are available).
@@ -51,6 +47,10 @@ Display effect
       ```pycon
       python -m http.server 8081
       ```
+
+      Display effect
+
+      ![TDengine - Perspective Integration](imgs/prsp-tdengine_short.gif)
 
 ## Develop Perspective Server
 
