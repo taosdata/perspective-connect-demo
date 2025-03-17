@@ -6,31 +6,29 @@ Perspective is an open-source and powerful data visualization library that enabl
 Through TDengine's Python connector` Perspective can support TDengine data sources and provide real-time functions such as various data charts and analysis.
 
 <!-- omit in toc -->
-## Table of Contents
+## Table of Contents- [1. Introduction](#1-introduction)
+- [1. Introduction](#1-introduction)
+- [2. Prerequisites on Linux](#2-prerequisites-on-linux)
+- [3. Display Visualized Data](#3-display-visualized-data)
+- [4. Develop Perspective Server](#4-develop-perspective-server)
+  - [4.1 Insert Data into TDengine](#41-insert-data-into-tdengine)
+  - [4.2 Read TDengine Time-Series Data in Real-Time](#42-read-tdengine-time-series-data-in-real-time)
+  - [4.3 Embed \& Configure Perspective Viewer](#43-embed--configure-perspective-viewer)
 
-- [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
-- [Display Visualized Data](#display-visualized-data)
-- [Develop Perspective Server](#develop-perspective-server)
-  - [Insert Data into TDengine](#insert-data-into-tdengine)
-  - [Read TDengine Time-Series Data in Real-Time](#read-tdengine-time-series-data-in-real-time)
-  - [Embed \& Configure Perspective Viewer](#embed--configure-perspective-viewer)
-
-
-## Introduction
+## 1. Introduction
 
 Perspective Server uses `TDengine Python Connector` to obtain real-time time-series data from the TDengine database, and provides the data to `Perspective Viewer` through Websocket to display various charts.
 
 ![TDengine - Perspective Architecture](imgs/tdengine_prsp_architecture.jpg)
 
-## Prerequisites
+## 2. Prerequisites on Linux
 
 - TDengine 3.3.5.8 and above version is installed and running normally (both Enterprise and Community versions are available).
 - taosAdapter is running normally, refer to [taosAdapter Reference](../../../tdengine-reference/components/taosadapter/).
 - Install python 3.10+ version, refer to [install python](https://docs.python.org/).
 - Run the 'install.sh' script to download and install the TDengine client library and related dependencies locally.
 
-## Display Visualized Data
+## 3. Display Visualized Data
 
    1. **start the perspective service:**
 
@@ -52,9 +50,9 @@ Perspective Server uses `TDengine Python Connector` to obtain real-time time-ser
 
       [![TDengine - Perspective Integration](imgs/prsp-tdengine_short.gif)](imgs/prsp-tdengine.gif)
 
-## Develop Perspective Server
+## 4. Develop Perspective Server
 
-### Insert Data into TDengine
+### 4.1 Insert Data into TDengine
 
    The producer.py script to periodically insert data into TDengine. This script simulates real-time data ingestion by generating random data points and inserting them into the TDengine database.
    
@@ -166,7 +164,7 @@ Perspective Server uses `TDengine Python Connector` to obtain real-time time-ser
           logger.debug(f"TDengine - Wrote {len(records)} rows to table {table_name}")
       ```
 
-### Read TDengine Time-Series Data in Real-Time
+### 4.2 Read TDengine Time-Series Data in Real-Time
 
 The `perspective_server.py` script starts a Perspective server that reads data from TDengine and streams it to a Perspective Table via a Tornado WebSocket.
 
@@ -291,36 +289,36 @@ The `perspective_server.py` script starts a Perspective server that reads data f
           loop.start()
       ```
 
-### Embed & Configure Perspective Viewer
+### 4.3 Embed & Configure Perspective Viewer
 
 The `prsp-viewer.html` file embeds a Perspective Table in an HTML page. It connects to the Perspective server via a WebSocket and displays the real-time data streamed from TDengine.
 
-1. **HTML Component:**
+   1. **HTML Component:**
 
-   The HTML file includes the necessary Perspective libraries and sets up a `<perspective-viewer>` element within a container. This custom HTML component, written in WebAssembly, provides easily embeddable and highly interactive real-time data visualization on top of TDengine data. The viewer is configured to connect to the Perspective server via WebSocket and load the `meters_values` table, allowing for dynamic data visualization.
+      The HTML file includes the necessary Perspective libraries and sets up a `<perspective-viewer>` element within a container. This custom HTML component, written in WebAssembly, provides easily embeddable and highly interactive real-time data visualization on top of TDengine data. The viewer is configured to connect to the Perspective server via WebSocket and load the `meters_values` table, allowing for dynamic data visualization.
 
-2. **Styling:**
+   2. **Styling:**
 
-   CSS styles are applied to ensure the viewer occupies the full viewport and has a dark background.
+      CSS styles are applied to ensure the viewer occupies the full viewport and has a dark background.
 
-3. **JavaScript Initialization:**
+   3. **JavaScript Initialization:**
 
-   A script is included to load the Perspective viewer and connect it to the Perspective server via WebSocket. The viewer is bound to the `meters_values` table on the server, allowing real-time data updates to be displayed.
+      A script is included to load the Perspective viewer and connect it to the Perspective server via WebSocket. The viewer is bound to the `meters_values` table on the server, allowing real-time data updates to be displayed.
 
-   ```html
-   <script type="module">
-       import perspective from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.3/dist/cdn/perspective.js";
+      ```html
+      <script type="module">
+          import perspective from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.3/dist/cdn/perspective.js";
    
-       document.addEventListener("DOMContentLoaded", function() {
-           async function load_viewer() {
-               const table_name = "meters_values";
-               const viewer = document.getElementById("prsp-viewer");
-               const websocket = await perspective.websocket("ws://localhost:8080/websocket");
-               const server_table = await websocket.open_table(table_name);
-               await viewer.load(server_table);
-           }
-           load_viewer();
-       });
-   </script>
-   ```
+          document.addEventListener("DOMContentLoaded", function() {
+              async function load_viewer() {
+                  const table_name = "meters_values";
+                  const viewer = document.getElementById("prsp-viewer");
+                  const websocket = await perspective.websocket("ws://localhost:8080/websocket");
+                  const server_table = await websocket.open_table(table_name);
+                  await viewer.load(server_table);
+              }
+              load_viewer();
+          });
+      </script>
+      ```
 
