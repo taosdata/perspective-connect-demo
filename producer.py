@@ -36,8 +36,8 @@ TAOS_TABLENAME = "meters"        # TDengine table name
 # =============================================================================
 # Data generation parameters
 # =============================================================================
-INTERVAL = 250                      # seconds. insert data every INTERVAL milliseconds
-NUM_ROWS_PER_INTERVAL = 250         # number of rows to insert every INTERVAL seconds
+INTERVAL = 300                      # seconds. insert data every INTERVAL milliseconds
+NUM_ROWS_PER_INTERVAL = 300         # number of rows to insert every INTERVAL seconds
 SECURITIES = [
     "San Francisco", 
     "Los Angles", 

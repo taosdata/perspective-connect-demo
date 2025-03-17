@@ -1,172 +1,45 @@
-# TDengine <> Perspective Integration
+# Integration With Perspective
 
-[![TDengine - Perspective Integration](imgs/prsp-tdengine_short.gif)](https://www.loom.com/share/5aa9f1d435d6430c99efa02559d3cd6c?sid=54d0ffbe-1906-4513-ad05-1898c8cbbe2d)
+Perspective is an open-source and powerful data visualization library that enables interactive, real-time data analysis in web applications. Developed by Prospective.co, Perspective leverages WebAssembly and Web Workers to provide high-performance data visualization capabilities directly in the browser. With Perspective, you can create dynamic dashboards, charts, and tables that update in real-time, allowing users to explore and interact with data seamlessly. Perspective's flexibility, speed, and ease of use make it an excellent choice for building data-driven applications that require real-time data visualization and analysis.
 
-This document explains how to configure Perspective with a TDengine data source. 
+Through TDengine's Python connector` Perspective can support TDengine data sources and provide real-time functions such as various data charts and analysis.
 
-<br/>
+## 1. Introduction
 
-The architecture is as follow:
-
-1. Install TDengine python client libs (taospy).
-1. Instantiate a TDengine docker container.
-1. Start a producer script (`producer.py`) which simulates real-time data ingestion into TDengine.
-1. Start a perspective-python server (`perspective_server.py`) which reads data periodically from TDengine and publishes it out to Perspective real-time Table via a Tornado Websocket.
-1. Embed a Perspective viewer in HTML and connect to the backend Server.
-1. Visualize and interact with TDengine data in real-time
-
-<br/><br>
-
-## Overview
-
-This guide demonstrates how to integrate [TDengine](https://tdengine.com/), a high-performance time-series database, with [Perspective](https://perspective.finos.org/), a powerful data visualization library. By combining these technologies, you can create a real-time data visualization platform that streams data from TDengine to a web-based Perspective viewer.
+Perspective Server uses `TDengine Python Connector` to obtain real-time time-series data from the TDengine database, and provides the data to `Perspective Viewer` through Websocket to display various charts.
 
 ![TDengine - Perspective Architecture](imgs/tdengine_prsp_architecture.jpg)
 
-### Key Steps:
+## 2. Prerequisites
 
-1. **Install and Configure TDengine client**: Set up the TDengine python client.
-2. **Docker Setup**: Deploy a TDengine Docker container and populate it with benchmark data.
-3. **Virtual Environment**: Create and configure a virtual environment with necessary Python dependencies.
-4. **Data Producer**: Implement a script to simulate real-time data ingestion into TDengine.
-5. **Perspective Server**: Develop a server to stream data from TDengine to a Perspective viewer.
-6. **Perspective Viewer**: Embed and configure a Perspective viewer in an HTML page for data visualization.
+- TDengine 3.3.5.8 and above version is installed and running normally (both Enterprise and Community versions are available).
+- taosAdapter is running normally, refer to [taosAdapter Reference](../../../tdengine-reference/components/taosadapter/).
+- Install python 3.10+ version, refer to [install python](https://docs.python.org/).
+- Run the 'install.sh' script to download and install the TDengine client library and related dependencies locally.
 
-By following these steps, you can create a scalable and efficient platform for real-time data analysis and monitoring. Customize and extend the provided examples to fit your specific use case, whether it's monitoring stock prices, IoT sensor data, or other time-series data.
+## 3. Start the perspective server and display visual data
 
-We hope this guide has been helpful in getting you started with TDengine and Perspective. For further information and advanced features, please refer to the helpful resources provided. Happy coding!
+1. **start the perspective service:**
 
-### TDengine
+Run the 'run.sh' script, start the perspective service, pull data from TDengine every 300 milliseconds, and stream the data to the web-based perspective viewer.
 
-[TDengine](https://tdengine.com/) is a high-performance, scalable time-series database designed specifically for handling large volumes of time-series data. It excels in scenarios requiring real-time data ingestion, storage, and analysis, making it an ideal choice for monitoring metrics in various industries such as IoT, finance, and telecommunications. TDengine's efficient data compression, high throughput, and low-latency query capabilities enable organizations to gain actionable insights from their time-series data, ensuring timely and informed decision-making.
-
-### Perspective
-
-Perspective is a powerful data visualization library that enables interactive, real-time data analysis in web applications. Developed by [Prospective.co](https://prospective.co), Perspective leverages WebAssembly and Web Workers to provide high-performance data visualization capabilities directly in the browser. With Perspective, you can create dynamic dashboards, charts, and tables that update in real-time, allowing users to explore and interact with data seamlessly. Perspective's flexibility, speed, and ease of use make it an excellent choice for building data-driven applications that require real-time data visualization and analysis.
-
-<br/><br/>
-
-## Getting Started
-
-### 1. Install TDengine client
-
-Run the `install.sh` script to download and install the TDengine client libraries locally. This is necessary for the TDengine Python SDK (taospy) to function.
-
-For more information on installing TDengine's client, please refer to [install client library](https://docs.tdengine.com/tdengine-reference/client-libraries/#install-client-driver) docs.
-
-```sh
-./install.sh
+```shell
+sh run.sh
 ```
 
-### 2. Check the client installation
+2. **Start a static web service:**
 
-After the install script runs, please verify if the everything is setup correctly.
+Start a static web service and access prsp-viewer.html resources to display visual data in the browser.
 
-You should see a symlink for `libtaos.so` in:
-
-```sh
-ls -l tdengine-client/driver/
+```pycon
+python -m http.server 8081
 ```
 
-Output:
+## 3. Develop Perspective Server
 
-```txt
-total 68488
-lrwxrwxrwx 1 warthog warthog       18 Jan  7 16:08 libtaos.so -> libtaos.so.3.3.5.0
--rwxr-xr-x 1 warthog warthog 59186032 Dec 31 03:42 libtaos.so.3.3.5.0
--rwxr-xr-x 1 warthog warthog 10937480 Dec 31 03:42 libtaosws.so
--rw-r--r-- 1 warthog warthog        8 Dec 31 03:42 vercomp.txt
-```
+### Insert Data into TDengine
 
-Check if the client lib folder is correctly added to `$LD_LIBRARY_PATH`:
-
-```sh
-echo $LD_LIBRARY_PATH
-```
-
-`LD_LIBRARY_PATH` should have been added to your bash profile file. Please check to ensure that it is set properly.
-
-If you don't see this line at the end of your `~/.bashrc` or `~/.bash_profile`, please add it:
-
-```sh
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:***YOUR PATH***/tdengine-client/driver"
-```
-
-### 3. Start a TDengine Docker container
-
-Run the `docker.sh` script to start a TDengine container. This script will also wait for the database to initialize.
-
-```sh
-./docker.sh
-```
-
-If you with to pre-populate the TDengine container with benchmark data. Run the script with the following flag:
-
-```sh
-./docker --benchmark
-```
-
-For complete information on running TDengine docker engine, please refer to [Get Started with TDengine Using Docker](https://docs.tdengine.com/get-started/deploy-in-docker/) docs.
-
-### 4. Activate your virtualenv
-
-`install.sh` already sets up a virtual environment for you and installs the TDengine `taospy` client. If you need to activate it manually, use the following commands:
-
-```sh
-source venv/bin/activate
-
-pip install --upgrade pip
-pip install --upgrade -r requirements.txt
-```
-
-### 4. Run the producer
-
-Run the `producer.py` script to periodically insert data into TDengine. This script simulates real-time data ingestion by generating random data points and inserting them into the TDengine database.
-
-```sh
-python producer.py
-```
-
-### 5. Run Perspective Server
-
-Run the `perspective_server.py` script to start a Perspective server (on a new terminal). This server will pull data from TDengine and stream it into a Tornado WebSocket.
-
-```sh
-python perspective_server.py
-```
-
-**NOTE:** Don't forget to activate your virtual environment before running the script.
-
-### 6. Open the Perspective Viewer
-
-Open the `prsp-viewer.html` file in your browser to view the Perspective Table. This table will display the real-time data streamed from TDengine.
-
-```sh
-open prsp-viewer.html
-```
-
-<br/><br/>
-
-## Explained
-
-### `docker.sh`
-
-The `docker.sh` script starts a TDengine Docker container. It waits for the database to initialize before returning. You can run this script with the following flags:
-
-- `--benchmark`: Pre-populates the TDengine container with benchmark data.
-- `--no-pull`: Skips pulling the TDengine Docker image.
-
-```sh
-./docker.sh --benchmark --no-pull
-```
-
-<br/>
-
-### `producer.py`
-
-The `producer.py` script connects to the TDengine database and inserts data at regular intervals. 
-
-Here's how it works:
+The producer.py script to periodically insert data into TDengine. This script simulates real-time data ingestion by generating random data points and inserting them into the TDengine database.
 
 1. **Connecting to TDengine:**
 
@@ -174,6 +47,19 @@ Here's how it works:
 import taosws
 
 TAOS_HOST = "localhost"
+
+# =============================================================================
+# TDengine connection parameters
+# =============================================================================
+TAOS_HOST = "localhost"          # TDengine server host
+TAOS_PORT = 6041                 # TDengine server port
+TAOS_USER = "root"               # TDengine username
+TAOS_PASSWORD = "taosdata"       # TDengine password
+
+TAOS_DATABASE = "power"          # TDengine database name
+TAOS_TABLENAME = "meters"        # TDengine table name
+
+
 TAOS_PORT = 6041
 TAOS_USER = "root"
 TAOS_PASSWORD = "taosdata"
@@ -184,20 +70,19 @@ conn = taosws.connect(host=TAOS_HOST, port=TAOS_PORT, user=TAOS_USER, password=T
 2. **Creating a table:**
 
 ```python
-create_table = """
-CREATE TABLE IF NOT EXISTS stocks_values (
-    timestamp TIMESTAMP,
-    ticker NCHAR(10),
-    client NCHAR(10),
-    open FLOAT,
-    high FLOAT,
-    low FLOAT,
-    close FLOAT,
-    volume INT UNSIGNED,
-    date TIMESTAMP
-)
-"""
-conn.execute(create_table)
+sql = f"""
+    CREATE TABLE IF NOT EXISTS meters (
+        `ts` TIMESTAMP, 
+        `current` FLOAT, 
+        `voltage` INT, 
+        `phase` FLOAT
+        ) TAGS (
+            `groupid` INT, 
+            `location` BINARY(16)
+        )
+    """
+
+conn.execute(sql)
 ```
 
 3. **Inserting data:**
@@ -211,56 +96,60 @@ from datetime import datetime, date, timezone as tz
 def gen_data():
     modifier = random.random() * random.randint(1, 50)
     return [{
-        "timestamp": datetime.now(tz=tz.utc),
-        "ticker": random.choice(["AAPL.N", "AMZN.N", "QQQ.N", "NVDA.N", "TSLA.N", "FB.N", "MSFT.N", "TLT.N", "XIV.N", "YY.N", "CSCO.N", "GOOGL.N", "PCLN.N"]),
-        "client": random.choice(["Homer", "Marge", "Bart", "Lisa", "Maggie", "Moe", "Lenny", "Carl", "Krusty"]),
-        "open": random.uniform(0, 75) + random.randint(0, 9) * modifier,
-        "high": random.uniform(0, 105) + random.randint(1, 3) * modifier,
-        "low": random.uniform(0, 85) + random.randint(1, 3) * modifier,
-        "close": random.uniform(0, 90) + random.randint(1, 3) * modifier,
-        "volume": random.randint(10_000, 100_000),
-        "date": date.today(),
-    } for _ in range(250)]
+        "ts": datetime.now(),
+        "current": random.uniform(0, 75) + random.randint(0, 9) * modifier,
+        "voltage": random.randint(200, 225),
+        "phase": random.uniform(0, 105) + random.randint(1, 3) * modifier,
+    } for _ in range(NUM_ROWS_PER_INTERVAL)]
 ```
 
 The `insert_data()` method uses prepared statements and batch inserts to enhance performance. By generating a batch of records at a time and using a prepared SQL statement, the method minimizes the overhead associated with multiple individual insert operations. This approach ensures efficient data insertion into the TDengine database.
 
 ```python
-def insert_data(conn):
+def insert_data(
+        conn, 
+        progress_counter,
+        table_name: str = TAOS_TABLENAME
+        ) -> None:
+    """
+    Insert data into the TDengine table
+    """
     records = gen_data()
-    sql = "INSERT INTO stocks_values VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    
+    # prepare a parameterized SQL statement
+    sql = f"INSERT INTO ? USING `{table_name}` (groupid, location) TAGS(?,?) VALUES (?,?,?,?)"
     stmt = conn.statement()
     stmt.prepare(sql)
-    timestamps = [int(record['timestamp'].timestamp() * 1000) for record in records]
-    tickers = [record['ticker'] for record in records]
-    clients = [record['client'] for record in records]
-    opens = [record['open'] for record in records]
-    highs = [record['high'] for record in records]
-    lows = [record['low'] for record in records]
-    closes = [record['close'] for record in records]
-    volumes = [record['volume'] for record in records]
-    dates = [int(datetime.combine(record['date'], datetime.min.time()).timestamp() * 1000) for record in records]
+    tableNo = progress_counter % 10
+    tbname = f"d_bind_{tableNo}"
+    tags = [
+        taosws.int_to_tag(tableNo),
+        taosws.varchar_to_tag(SECURITIES[tableNo]),
+    ]
+
+    stmt.set_tbname_tags(tbname, tags)
+    
+    # prepare the columns into their respective lists
+    timestamps = [int(record['ts'].timestamp() * 1000) for record in records]
+    currents = [record['current'] for record in records]
+    voltages = [record['voltage'] for record in records]
+    phases = [record['phase'] for record in records]
+
+    # bind the parameters and execute the statement
     stmt.bind_param([
         taosws.millis_timestamps_to_column(timestamps),
-        taosws.nchar_to_column(tickers),
-        taosws.nchar_to_column(clients),
-        taosws.floats_to_column(opens),
-        taosws.floats_to_column(highs),
-        taosws.floats_to_column(lows),
-        taosws.floats_to_column(closes),
-        taosws.ints_to_column(volumes),
-        taosws.millis_timestamps_to_column(dates),
-    ])
+        taosws.floats_to_column(currents),
+        taosws.ints_to_column(voltages),
+        taosws.floats_to_column(phases),
+        ]
+    )
+    # send the batch for insert
     stmt.add_batch()
     stmt.execute()
-
-
-while True:
-    insert_data(conn)
-    time.sleep(0.25)
+    logger.debug(f"TDengine - Wrote {len(records)} rows to table {table_name}")
 ```
 
-### `perspective_server.py`
+### Read TDengine Time-Series Data in Real-Time
 
 The `perspective_server.py` script starts a Perspective server that reads data from TDengine and streams it to a Perspective Table via a Tornado WebSocket.
 
@@ -285,56 +174,74 @@ The `read_tdengine()` function queries the TDengine database and retrieves the l
 
 ```python
 def read_tdengine(conn):
-    sql = """
-        SELECT `timestamp`, ticker, client, open, high, low, close, volume, date
-        FROM stocks_values
-        WHERE `timestamp` >= NOW() - 1s
-        ORDER BY `timestamp` DESC
-        LIMIT 1000
-    """
-    res = conn.query(sql)
-    data = [
-        {
-            "timestamp": convert_ts(row[0]),
-            "ticker": row[1],
-            "client": row[2],
-            "open": row[3],
-            "high": row[4],
-            "low": row[5],
-            "close": row[6],
-            "volume": row[7],
-            "date": convert_ts(row[8]),
-        }
-        for row in res
-    ]
-    return data
+        conn: taosws.Connection, 
+        ) -> list[dict]:
+    try:
+        # query the database
+        sql = f"""
+            SELECT `ts`, location, groupid, current, voltage, phase
+            FROM {TAOS_TABLENAME}
+            WHERE `ts` >= NOW() - 12h
+            ORDER BY `ts` DESC
+            LIMIT 1000
+            """
+        logger.debug(f"Executing query: {sql}")
+        res = conn.query(sql)
+        data = [
+            {
+                "timestamp": convert_ts(row[0]),
+                "location": row[1],
+                "groupid": row[2],
+                "current": row[3],
+                "voltage": row[4],
+                "phase": row[5],
+            }
+            for row in res
+        ]
+        logger.info(f"select result: {data}")
+        return data
+    except Exception as err:
+        logger.error(f"Failed to query tdengine: {err}")
+        raise err
+
 ```
 
 3. **Updating Perspective Table:**
 
-The `perspective_thread()` function creates a Perspective table and updates it with new data from TDengine every 250 milliseconds:
+The `perspective_thread()` function creates a Perspective table and updates it with new data from TDengine every 300 milliseconds:
 
 ```python
 def perspective_thread(perspective_server, tdengine_conn):
+    """
+    Create a new Perspective table and update it with new data every 50ms
+    """
+    # create a new Perspective table
     client = perspective_server.new_local_client()
     schema = {
         "timestamp": datetime,
-        "ticker": str,
-        "client": str,
-        "open": float,
-        "high": float,
-        "low": float,
-        "close": float,
-        "volume": int,
-        "date": datetime,
+        "location": str,
+        "groupid": int,
+        "current": float,
+        "voltage": int,
+        "phase": float,
     }
-    table = client.table(schema, limit=1000, name="stock_values")
-    
+    # define the table schema
+    table = client.table(
+        schema,
+        limit=1000,                     # maximum number of rows in the table
+        name=PERSPECTIVE_TABLE_NAME,    # table name. Use this with perspective-viewer on the client side
+    )
+    logger.info("Created new Perspective table")
+
+    # update with new data every 50ms
     def updater():
         data = read_tdengine(tdengine_conn)
         table.update(data)
-    
-    callback = tornado.ioloop.PeriodicCallback(callback=updater, callback_time=250)
+        logger.debug(f"Updated Perspective table: {len(data)} rows")
+
+    logger.info(f"Starting tornado ioloop update loop every {PERSPECTIVE_REFRESH_RATE} milliseconds")
+    # start the periodic callback to update the table data
+    callback = tornado.ioloop.PeriodicCallback(callback=updater, callback_time=PERSPECTIVE_REFRESH_RATE)
     callback.start()
 ```
 
@@ -355,7 +262,7 @@ def make_app(perspective_server):
 
 5. **Running the server:**
 
-The main block initializes the Perspective server, TDengine connection, and starts the Tornado IOLoop:
+The `perspective-viewer` element is configured with the "Pro Dark" theme to match the dark background and provide a consistent visual appearance.
 
 ```python
 if __name__ == "__main__":
@@ -369,7 +276,7 @@ if __name__ == "__main__":
     loop.start()
 ```
 
-### `prsp-viewer.html`
+### Embed & Configure Perspective Viewer in HTML
 
 The `prsp-viewer.html` file embeds a Perspective Table in an HTML page. It connects to the Perspective server via a WebSocket and displays the real-time data streamed from TDengine.
 
@@ -404,38 +311,3 @@ A script is included to load the Perspective viewer and connect it to the Perspe
 </script>
 ```
 
-4. **Viewer Configuration:**
-
-The `perspective-viewer` element is configured with the "Pro Dark" theme to match the dark background and provide a consistent visual appearance.
-
-<br/><br/>
-
-## Conclusion
-
-In this guide, we have walked through the process of integrating TDengine with Perspective to create a real-time data visualization platform. By following the steps outlined, you have learned how to:
-
-1. Install and configure the TDengine client and server.
-2. Set up a Docker container for TDengine and populate it with benchmark data.
-3. Create a virtual environment and install necessary Python dependencies.
-4. Implement a data producer to simulate real-time data ingestion into TDengine.
-5. Develop a Perspective server to stream data from TDengine to a web-based Perspective viewer.
-6. Embed and configure a Perspective viewer in an HTML page to visualize the data.
-
-This integration allows you to leverage the high-performance time-series database capabilities of TDengine with the powerful data visualization features of Perspective. The combination of these technologies provides a robust solution for real-time data analysis and monitoring.
-
-By following the provided examples and scripts, you can customize and extend this setup to fit your specific use case. Whether you are monitoring stock prices, IoT sensor data, or any other time-series data, this integration offers a scalable and efficient way to visualize and interact with your data in real-time.
-
-We hope this guide has been helpful in getting you started with TDengine and Perspective. For further information and advanced features, please refer to the helpful resources provided. Happy coding!
-
-<br/><br/>
-
-## Helpful Resources
-
-- **TDengine client library examples including python and node.js:** Download [TDengine's client library](https://docs.tdengine.com/tdengine-reference/client-libraries/#install-client-driver) tar file and unpack it. Look inside the examples directory for a comprehensive list of examples.
-
-- [TDengine Docker Container with Data](https://docs.tdengine.com/get-started/deploy-in-docker/)
-- [TDengine SQL Reference](https://docs.tdengine.com/basic-features/data-querying/)
-- [Inserting data into TDengine](https://docs.tdengine.com/basic-features/data-ingestion/)
-
-Next steps:
-- [Streaming data from TDengine](https://docs.tdengine.com/advanced-features/stream-processing/)
